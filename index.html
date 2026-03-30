@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Pedidos Rápida</title>
+    <style>
+        body { font-family: sans-serif; background: #ece5dd; margin: 0; padding: 15px; display: flex; justify-content: center; }
+        .card { background: white; width: 100%; max-width: 400px; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h3 { color: #075e54; text-align: center; margin-top: 0; }
+        
+        .input-box { display: flex; gap: 8px; margin-bottom: 15px; }
+        textarea { flex: 1; height: 80px; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; resize: none; }
+        .btn-paste { background: #555; color: white; border: none; border-radius: 8px; padding: 0 12px; cursor: pointer; }
+
+        .item { display: flex; align-items: center; justify-content: space-between; background: #f9f9f9; padding: 10px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #eee; }
+        .item-name { flex: 1; font-size: 14px; color: #333; margin-right: 10px; }
+        .item-controls { display: flex; align-items: center; gap: 8px; }
+        
+        input[type="number"] { width: 70px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; text-align: right; }
+        .chk { transform: scale(1.2); cursor: pointer; }
+
+        .total-row { margin-top: 15px; padding: 12px; background: #075e54; color: white; border-radius: 8px; display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; }
+        .btn-copy { width: 100%; background: #25D366; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; margin-top: 15px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h3>Generador de Pedido</h3>
+    
+    <div class="input-box">
+        <textarea id="txt-in" placeholder="Pega aquí los productos..." oninput="procesar()"></textarea>
+        <button class="btn-paste" onclick="pegar()">Pegar</button>
+    </div>
+
+    <div id="lista"></div>
+
+    <div class="total-row">
+        <span>TOTAL:</span>
+        <span id="total-val">Q 0.00</span>
+    </div>
+
+    <button class="btn-copy" onclick="copiar()">Copiar Pedido</button>
+</div>
+
+<script>
+    async function pegar() {
+        const t = await navigator.clipboard.readText();
+        document.getElementById('txt-in').value = t;
+        procesar();
+    }
+
+    function procesar() {
+        const lineas = document.getElementById('txt-in').value.split('\n').filter(l => l.trim() !== "");
+        const lista = document.getElementById('lista');
+        lista.innerHTML = "";
+
+        lineas.forEach((linea) => {
+            let cant = 1;
+            // Detecta si empieza con número pero NO es fracción (ej. evita 1/2)
+            const m = linea.match(/^(\d+)(?!\/\d)/);
+            if (m) cant = parseInt(m[1]);
+
+            const div = document.createElement('div');
+            div.className = 'item';
+            div.innerHTML = `
+                <span class="item-name">${linea}</span>
+                <div class="item-controls">
+                    <input type="checkbox" class="chk" checked onchange="calc()" title="Multiplicar">
+                    <input type="number" class="p-input" placeholder="0.00" oninput="calc()" data-n="${linea}" data-c="${cant}">
+                </div>
+            `;
+            lista.appendChild(div);
+        });
+        calc();
+    }
+
+    function calc() {
+        let t = 0;
+        document.querySelectorAll('.item').forEach(el => {
+            const p = parseFloat(el.querySelector('.p-input').value) || 0;
+            const c = parseInt(el.querySelector('.p-input').dataset.c);
+            const m = el.querySelector('.chk').checked;
+            t += m ? (p * c) : p;
+        });
+        document.getElementById('total-val').innerText = "Q " + t.toFixed(2);
+    }
+
+    function copiar() {
+        let msg = "*DETALLE DEL PEDIDO*\n\n";
+        let total = 0;
+
+        document.querySelectorAll('.item').forEach(el => {
+            const nom = el.querySelector('.p-input').dataset.n;
+            const p = parseFloat(el.querySelector('.p-input').value) || 0;
+            const c = parseInt(el.querySelector('.p-input').dataset.c);
+            const m = el.querySelector('.chk').checked;
+            const sub = m ? (p * c) : p;
+            total += sub;
+
+            if (p > 0) {
+                // Formato de una sola línea: Producto ......... Q0.00
+                msg += `• ${nom.padEnd(20, ' ')} *Q${sub.toFixed(2)}*\n`;
+            }
+        });
+
+        msg += "\n━━━━━━━━━━━━━━\n";
+        msg += `*TOTAL A PAGAR: Q${total.toFixed(2)}*`;
+
+        // Quitar espacios extra de padEnd para que WhatsApp no se vea raro si no es fuente mono
+        const cleanMsg = msg.replace(/ {2,}/g, '   '); 
+
+        navigator.clipboard.writeText(cleanMsg);
+        alert("¡Copiado! En WhatsApp se verá en una sola línea.");
+    }
+</script>
+
+</body>
+</html>
