@@ -3,71 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Calculadora de Pedidos PRO</title>
+    <title>Calculadora de Pedidos</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #ece5dd; margin: 0; padding: 15px; display: flex; justify-content: center; }
-        .card { background: white; width: 100%; max-width: 450px; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h3 { color: #075e54; text-align: center; margin-top: 0; }
-        
-        .input-box { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
-        textarea { width: 100%; height: 80px; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; resize: none; box-sizing: border-box; }
-        
-        .actions { display: flex; gap: 8px; }
-        .btn-paste { flex: 2; background: #075e54; color: white; border: none; border-radius: 8px; padding: 10px; cursor: pointer; font-weight: bold; }
-        .btn-clear { flex: 1; background: #e53935; color: white; border: none; border-radius: 8px; padding: 10px; cursor: pointer; font-weight: bold; }
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f0f4f8;
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 480px;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(22, 64, 109, 0.1);
+            margin: auto;
+        }
+        h3 {
+            color: #16406d;
+            text-align: center;
+            margin: 0 0 16px 0;
+            font-size: 22px;
+            font-weight: 700;
+        }
+        .input-box { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        textarea {
+            width: 100%;
+            height: 80px;
+            padding: 12px;
+            border: 2px solid #b0bec5;
+            border-radius: 10px;
+            font-size: 16px;
+            resize: none;
+            font-family: inherit;
+            background: #f8fafc;
+            transition: border 0.2s;
+        }
+        textarea:focus { border-color: #16406d; outline: none; }
+        .actions { display: flex; gap: 8px; margin-bottom: 10px; }
+        .btn-paste {
+            flex: 2;
+            background: #16406d;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .btn-paste:active { background: #0f2d4e; }
+        .btn-clear {
+            flex: 1;
+            background: #a62b2b;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .btn-clear:active { background: #822222; }
 
-        .item { display: flex; align-items: center; justify-content: space-between; background: #f9f9f9; padding: 10px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #eee; }
-        .item-name { flex: 1; font-size: 14px; color: #333; margin-right: 10px; word-break: break-word; }
-        .item-controls { display: flex; align-items: center; gap: 8px; }
-        
-        /* Font-size 16px evita el zoom en iPhone/Android */
-        input[type="number"] { width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-align: right; font-size: 16px; }
-        .chk { transform: scale(1.3); cursor: pointer; }
+        .btn-logo {
+            width: 100%;
+            background: #34495e;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        .btn-logo.loaded { background: #27ae60; }
 
-        .total-row { margin-top: 15px; padding: 15px; background: #075e54; color: white; border-radius: 8px; display: flex; justify-content: space-between; font-weight: bold; font-size: 20px; }
-        .btn-copy { width: 100%; background: #25D366; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 17px; font-weight: bold; margin-top: 15px; cursor: pointer; }
+        .item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+        .item-name {
+            flex: 1;
+            font-size: 15px;
+            color: #1d2d44;
+            margin-right: 10px;
+            word-break: break-word;
+            font-weight: 500;
+        }
+        .item-controls { display: flex; align-items: center; gap: 6px; }
+        input[type="number"] {
+            width: 85px;
+            padding: 6px 4px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            text-align: right;
+            font-size: 16px;
+            background: white;
+            font-weight: 600;
+            color: #16406d;
+        }
+        input[type="number"]:focus { border-color: #16406d; outline: none; }
+        .chk {
+            transform: scale(1.3);
+            cursor: pointer;
+            accent-color: #16406d;
+        }
+
+        .total-row {
+            margin-top: 16px;
+            padding: 14px 18px;
+            background: #a62b2b;
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 20px;
+            box-shadow: 0 4px 10px rgba(166, 43, 43, 0.2);
+        }
+        .btn-copy {
+            width: 100%;
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 16px;
+            cursor: pointer;
+        }
+        .btn-copy:active { background: #1da85c; }
+        .btn-copy:disabled { opacity: 0.7; pointer-events: none; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h3>Generador de Pedido</h3>
-    
+    <h3>📋 Generador de Pedido</h3>
+
+    <button class="btn-logo" id="btnLogoNav" onclick="document.getElementById('fileInput').click()">🖼️ Cargar Logo (Solo 1 vez)</button>
+    <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="cargarLogo(event)">
+
     <div class="input-box">
         <textarea id="txt-in" placeholder="Pega los productos aquí..." oninput="procesar()"></textarea>
         <div class="actions">
-            <button class="btn-paste" onclick="pegar()">Pegar de Portapapeles</button>
-            <button class="btn-clear" onclick="borrarTodo()">Borrar Todo</button>
+            <button class="btn-paste" onclick="pegar()">📋 Pegar</button>
+            <button class="btn-clear" onclick="borrarTodo()">🗑 Borrar</button>
         </div>
     </div>
 
     <div id="lista"></div>
 
     <div class="total-row">
-        <span>TOTAL:</span>
+        <span>TOTAL</span>
         <span id="total-val">Q 0.00</span>
     </div>
 
-    <button class="btn-copy" onclick="copiar()">Copiar para WhatsApp</button>
+    <button class="btn-copy" id="btnCopiar" onclick="copiarImagen()">📸 Copiar Imagen para WhatsApp</button>
 </div>
 
+<img id="logoMemoria" style="display:none;">
+
 <script>
-    // Guardar precios anteriores para que no se borren al editar el texto
     let preciosGuardados = {};
+
+    // Al cargar la página, revisamos si ya existe el logo guardado del negocio
+    window.addEventListener('DOMContentLoaded', () => {
+        const logoGuardado = localStorage.getItem('logoNegocioB64');
+        if (logoGuardado) {
+            document.getElementById('logoMemoria').src = logoGuardado;
+            const btnLogo = document.getElementById('btnLogoNav');
+            btnLogo.textContent = "✅ Logo Guardado (Permanente)";
+            btnLogo.classList.add('loaded');
+        }
+        procesar();
+    });
+
+    function cargarLogo(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result;
+                
+                // Lo metemos al elemento invisible y lo guardamos en el navegador para siempre
+                document.getElementById('logoMemoria').src = base64Data;
+                localStorage.setItem('logoNegocioB64', base64Data);
+                
+                const btnLogo = document.getElementById('btnLogoNav');
+                btnLogo.textContent = "✅ Logo Guardado (Permanente)";
+                btnLogo.classList.add('loaded');
+            }
+            reader.readAsDataURL(file);
+        }
+    }
 
     async function pegar() {
         try {
-            const t = await navigator.clipboard.readText();
-            document.getElementById('txt-in').value = t;
+            const texto = await navigator.clipboard.readText();
+            document.getElementById('txt-in').value = texto;
             procesar();
-        } catch (err) {
-            alert("No se pudo acceder al portapapeles. Pega manualmente.");
+        } catch (e) {
+            alert('No se pudo acceder al portapapeles. Pega manualmente.');
         }
     }
 
     function borrarTodo() {
-        if(confirm("¿Borrar toda la lista?")) {
-            document.getElementById('txt-in').value = "";
+        if (confirm('¿Borrar todos los productos y precios?')) {
+            document.getElementById('txt-in').value = '';
             preciosGuardados = {};
             procesar();
         }
@@ -75,35 +232,33 @@
 
     function procesar() {
         const texto = document.getElementById('txt-in').value;
-        const lineas = texto.split('\n').filter(l => l.trim() !== "");
+        const lineas = texto.split('\n').filter(l => l.trim() !== '');
         const listaDiv = document.getElementById('lista');
-        
-        // Guardar lo que hay actualmente antes de redibujar
+
         document.querySelectorAll('.p-input').forEach(input => {
             if (input.value) {
                 preciosGuardados[input.dataset.n] = input.value;
             }
         });
 
-        listaDiv.innerHTML = "";
+        listaDiv.innerHTML = '';
 
-        lineas.forEach((linea) => {
+        lineas.forEach(linea => {
             let cant = 1;
             const m = linea.match(/^(\d+)(?!\/\d)/);
             if (m) cant = parseInt(m[1]);
 
-            // Recuperar precio si ya existía
-            const precioPrevio = preciosGuardados[linea] || "";
+            const precioPrevio = preciosGuardados[linea] || '';
 
             const div = document.createElement('div');
             div.className = 'item';
             div.innerHTML = `
                 <span class="item-name">${linea}</span>
                 <div class="item-controls">
-                    <input type="checkbox" class="chk" checked onchange="calc()" title="Multiplicar por cantidad">
-                    <input type="number" class="p-input" step="0.01" placeholder="0.00" 
+                    <input type="checkbox" class="chk" checked onchange="calc()">
+                    <input type="number" class="p-input" step="0.01" placeholder="0.00"
                            value="${precioPrevio}"
-                           oninput="calc()" 
+                           oninput="calc()"
                            data-n="${linea}" data-c="${cant}">
                 </div>
             `;
@@ -113,60 +268,224 @@
     }
 
     function calc() {
-        let t = 0;
+        let total = 0;
         document.querySelectorAll('.item').forEach(el => {
             const input = el.querySelector('.p-input');
-            const p = parseFloat(input.value) || 0;
-            const c = parseInt(input.dataset.c);
-            const m = el.querySelector('.chk').checked;
-            
-            // Actualizar memoria de precios
+            const precio = parseFloat(input.value) || 0;
+            const cant = parseInt(input.dataset.c);
+            const multiplicar = el.querySelector('.chk').checked;
             preciosGuardados[input.dataset.n] = input.value;
-            
-            t += m ? (p * c) : p;
+            total += multiplicar ? (precio * cant) : precio;
         });
-        document.getElementById('total-val').innerText = "Q " + t.toFixed(2);
+        document.getElementById('total-val').textContent = 'Q ' + total.toFixed(2);
     }
 
-    function copiar() {
+    function copiarImagen() {
         const items = document.querySelectorAll('.item');
-        if (items.length === 0) return;
+        if (items.length === 0) {
+            alert('No hay productos para generar la factura.');
+            return;
+        }
 
-        let msg = "*DETALLE DEL PEDIDO*\n\n";
-        let total = 0;
         let lineasPedido = [];
-        let maxLargo = 0;
-
-        // Primero recolectamos datos y medimos el nombre más largo
+        let total = 0;
         items.forEach(el => {
             const nom = el.querySelector('.p-input').dataset.n;
-            const p = parseFloat(el.querySelector('.p-input').value) || 0;
-            const c = parseInt(el.querySelector('.p-input').dataset.c);
-            const m = el.querySelector('.chk').checked;
-            const sub = m ? (p * c) : p;
+            const precio = parseFloat(el.querySelector('.p-input').value) || 0;
+            const cant = parseInt(el.querySelector('.p-input').dataset.c);
+            const multiplicar = el.querySelector('.chk').checked;
+            const sub = multiplicar ? (precio * cant) : precio;
 
-            if (p > 0) {
+            if (precio > 0) {
+                lineasPedido.push({ nombre: nom.trim(), precio: sub });
                 total += sub;
-                lineasPedido.push({ nombre: nom.trim(), precio: sub.toFixed(2) });
-                if (nom.trim().length > maxLargo) maxLargo = nom.trim().length;
             }
         });
 
-        // Construir el mensaje con espacios alineados
+        if (lineasPedido.length === 0) {
+            alert('No hay productos con precio para generar la factura.');
+            return;
+        }
+
+        const btn = document.getElementById('btnCopiar');
+        btn.disabled = true;
+        btn.textContent = '⏳ Generando...';
+
+        requestAnimationFrame(() => {
+            try {
+                const imgElement = document.getElementById('logoMemoria');
+                generarFactura(lineasPedido, total, imgElement.src ? imgElement : null);
+            } catch (e) {
+                alert('Error al generar: ' + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '📸 Copiar Imagen para WhatsApp';
+            }
+        });
+    }
+
+    function generarFactura(lineasPedido, total, logo) {
+        const escala = 2;
+        const ancho = 600 * escala;
+        const margen = 30 * escala;
+        const lineHeight = 38 * escala; 
+        
+        const headerHeight = 140 * escala;  
+        const tableHeaderHeight = 40 * escala; 
+        const itemHeight = lineasPedido.length * lineHeight;
+        const totalSectionHeight = 75 * escala; 
+        const footerHeight = 60 * escala;  
+        
+        const alto = headerHeight + tableHeaderHeight + itemHeight + totalSectionHeight + footerHeight;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = ancho;
+        canvas.height = alto;
+        const ctx = canvas.getContext('2d');
+
+        ctx.scale(escala, escala);
+
+        const grad = ctx.createLinearGradient(0, 0, 0, alto/escala);
+        grad.addColorStop(0, '#16406d');
+        grad.addColorStop(1, '#2c5d94');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, ancho/escala, alto/escala);
+
+        const cuerpoY = (headerHeight / escala) - 10;
+        const cuerpoAltura = (itemHeight + tableHeaderHeight + totalSectionHeight) / escala;
+        
+        ctx.shadowColor = 'rgba(0,0,0,0.2)';
+        ctx.shadowBlur = 15;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.roundRect(margen/escala, cuerpoY, (ancho/escala) - 2*(margen/escala), cuerpoAltura, 14);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        const logoSize = 85;
+        const logoX = (margen / escala) + 10;
+        const logoY = 22;
+        
+        if (logo && logo.src) {
+            ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
+        }
+
+        const textoHeaderX = (logo && logo.src) ? (logoX + logoSize + 15) : (margen / escala) + 15;
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 22px Arial';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('DETALLE DEL PEDIDO', textoHeaderX, logoY + (logoSize / 2));
+
+        const ahora = new Date();
+        const fechaStr = ahora.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const horaStr = ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        ctx.textAlign = 'right';
+        ctx.font = '13px Arial';
+        ctx.fillStyle = '#f1c40f'; 
+        ctx.fillText(`${fechaStr} ${horaStr}`, (ancho/escala) - (margen/escala) - 10, logoY + 15);
+
+        const colCant = (margen/escala) + 20;
+        const colProducto = colCant + 60;
+        const colPrecio = (ancho/escala) - (margen/escala) - 20;
+
+        let currentY = cuerpoY + 15;
+
+        ctx.fillStyle = '#16406d';
+        ctx.font = 'bold 15px monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText('Cant', colCant, currentY);
+        ctx.fillText('Producto', colProducto, currentY);
+        ctx.textAlign = 'right';
+        ctx.fillText('Total', colPrecio, currentY);
+
+        currentY += 22;
+        ctx.beginPath();
+        ctx.moveTo((margen/escala) + 15, currentY);
+        ctx.lineTo((ancho/escala) - (margen/escala) - 15, currentY);
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        currentY += 12; 
+        ctx.font = '15px monospace';
+        
         lineasPedido.forEach(item => {
-            // Calculamos cuántos puntos/espacios poner para que todos pesen lo mismo
-            // Usamos puntos porque en WhatsApp ayudan a guiar la vista
-            let relleno = ".".repeat(Math.max(2, (maxLargo - item.nombre.length) + 5));
-            msg += `• ${item.nombre} ${relleno} *Q${item.precio}*\n`;
+            let nombre = item.nombre;
+            let cant = 1;
+            const m = nombre.match(/^(\d+)(?!\/\d)/);
+            if (m) {
+                cant = parseInt(m[1]);
+                nombre = nombre.substring(m[1].length).trim();
+            }
+
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#1d2d44';
+            ctx.fillText(cant, colCant, currentY);
+            ctx.fillText(nombre, colProducto, currentY);
+
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#16406d';
+            ctx.font = 'bold 15px monospace';
+            ctx.fillText('Q' + item.precio.toFixed(2), colPrecio, currentY);
+            ctx.font = '15px monospace';
+
+            currentY += lineHeight/escala;
         });
 
-        msg += "\n━━━━━━━━━━━━━━\n";
-        msg += `*TOTAL A PAGAR: Q${total.toFixed(2)}*`;
+        ctx.beginPath();
+        ctx.moveTo((margen/escala) + 15, currentY);
+        ctx.lineTo((ancho/escala) - (margen/escala) - 15, currentY);
+        ctx.strokeStyle = '#a62b2b';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
 
-        navigator.clipboard.writeText(msg);
-        alert("¡Pedido copiado con éxito!");
+        currentY += 15;
+        ctx.textAlign = 'right';
+        ctx.font = 'bold 24px monospace';
+        ctx.fillStyle = '#a62b2b';
+        ctx.fillText('TOTAL: Q' + total.toFixed(2), colPrecio, currentY);
+
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 14px Arial';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText('¡Gracias por su compra!', (ancho/escala)/2, (alto/escala) - 22);
+
+        canvas.toBlob(async (blob) => {
+            try {
+                await navigator.clipboard.write([
+                    new ClipboardItem({ 'image/png': blob })
+                ]);
+                alert('✅ ¡Factura copiada con éxito! Pégala directamente en WhatsApp.');
+            } catch (e) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'pedido.png';
+                a.click();
+                URL.revokeObjectURL(url);
+                alert('📥 Imagen descargada automáticamente.');
+            }
+        }, 'image/png');
+    }
+
+    if (!CanvasRenderingContext2D.prototype.roundRect) {
+        CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+            if (r > w/2) r = w/2;
+            if (r > h/2) r = h/2;
+            this.moveTo(x + r, y);
+            this.lineTo(x + w - r, y);
+            this.quadraticCurveTo(x + w, y, x + w, y + r);
+            this.lineTo(x + w, y + h - r);
+            this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            this.lineTo(x + r, y + h);
+            this.quadraticCurveTo(x, y + h, x, y + h - r);
+            this.lineTo(x, y + r);
+            this.quadraticCurveTo(x, y, x + r, y);
+            this.closePath();
+            return this;
+        };
     }
 </script>
-
 </body>
 </html>
