@@ -19,7 +19,7 @@
             background: #ffffff;
             width: 100%;
             max-width: 480px;
-            padding: 20px;
+            padding: 20px 15px;
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(22, 64, 109, 0.1);
             margin: auto;
@@ -87,6 +87,7 @@
 
         .item {
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
             background: #f8fafc;
@@ -94,18 +95,26 @@
             margin-bottom: 6px;
             border-radius: 10px;
             border: 1px solid #e2e8f0;
+            gap: 6px;
         }
         .item-name {
-            flex: 1;
+            flex: 1 1 45%;
             font-size: 15px;
             color: #1d2d44;
-            margin-right: 10px;
             word-break: break-word;
             font-weight: 500;
+            min-width: 100px;
         }
-        .item-controls { display: flex; align-items: center; gap: 6px; }
-        input[type="number"] {
-            width: 85px;
+        .item-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            flex: 1 1 auto;
+            justify-content: flex-end;
+        }
+        .item-controls input[type="number"] {
+            width: 75px;
             padding: 6px 4px;
             border: 1px solid #cbd5e1;
             border-radius: 6px;
@@ -115,11 +124,23 @@
             font-weight: 600;
             color: #16406d;
         }
-        input[type="number"]:focus { border-color: #16406d; outline: none; }
+        .item-controls input[type="number"]:focus { border-color: #16406d; outline: none; }
         .chk {
             transform: scale(1.3);
             cursor: pointer;
             accent-color: #16406d;
+            margin-right: 2px;
+        }
+        .subtotal-item {
+            font-size: 14px;
+            font-weight: 600;
+            color: #16406d;
+            background: #e6edf5;
+            padding: 2px 10px;
+            border-radius: 20px;
+            white-space: nowrap;
+            min-width: 70px;
+            text-align: center;
         }
 
         .total-row {
@@ -181,7 +202,7 @@
 <script>
     let preciosGuardados = {};
 
-    // Al cargar la página, revisamos si ya existe el logo guardado del negocio
+    // Cargar precios desde localStorage al iniciar
     window.addEventListener('DOMContentLoaded', () => {
         const logoGuardado = localStorage.getItem('logoNegocioB64');
         if (logoGuardado) {
@@ -189,6 +210,13 @@
             const btnLogo = document.getElementById('btnLogoNav');
             btnLogo.textContent = "✅ Logo Guardado (Permanente)";
             btnLogo.classList.add('loaded');
+        }
+        // Recuperar precios guardados
+        const preciosAlmacenados = localStorage.getItem('preciosProductos');
+        if (preciosAlmacenados) {
+            try {
+                preciosGuardados = JSON.parse(preciosAlmacenados);
+            } catch (e) { preciosGuardados = {}; }
         }
         procesar();
     });
@@ -199,11 +227,8 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 const base64Data = e.target.result;
-                
-                // Lo metemos al elemento invisible y lo guardamos en el navegador para siempre
                 document.getElementById('logoMemoria').src = base64Data;
                 localStorage.setItem('logoNegocioB64', base64Data);
-                
                 const btnLogo = document.getElementById('btnLogoNav');
                 btnLogo.textContent = "✅ Logo Guardado (Permanente)";
                 btnLogo.classList.add('loaded');
@@ -226,8 +251,14 @@
         if (confirm('¿Borrar todos los productos y precios?')) {
             document.getElementById('txt-in').value = '';
             preciosGuardados = {};
+            localStorage.removeItem('preciosProductos');
             procesar();
         }
+    }
+
+    // Guardar precios en localStorage
+    function guardarPreciosEnLocal() {
+        localStorage.setItem('preciosProductos', JSON.stringify(preciosGuardados));
     }
 
     function procesar() {
@@ -235,11 +266,13 @@
         const lineas = texto.split('\n').filter(l => l.trim() !== '');
         const listaDiv = document.getElementById('lista');
 
+        // Guardar precios actuales antes de reconstruir
         document.querySelectorAll('.p-input').forEach(input => {
             if (input.value) {
                 preciosGuardados[input.dataset.n] = input.value;
             }
         });
+        guardarPreciosEnLocal();
 
         listaDiv.innerHTML = '';
 
@@ -248,6 +281,7 @@
             const m = linea.match(/^(\d+)(?!\/\d)/);
             if (m) cant = parseInt(m[1]);
 
+            const nombreLimpio = linea.replace(/^\d+\s*/, '').trim() || linea;
             const precioPrevio = preciosGuardados[linea] || '';
 
             const div = document.createElement('div');
@@ -260,6 +294,7 @@
                            value="${precioPrevio}"
                            oninput="calc()"
                            data-n="${linea}" data-c="${cant}">
+                    <span class="subtotal-item" id="sub-${linea.replace(/\s/g, '')}">Q 0.00</span>
                 </div>
             `;
             listaDiv.appendChild(div);
@@ -274,10 +309,20 @@
             const precio = parseFloat(input.value) || 0;
             const cant = parseInt(input.dataset.c);
             const multiplicar = el.querySelector('.chk').checked;
+            const subtotal = multiplicar ? (precio * cant) : precio;
+            
+            // Actualizar subtotal visual
+            const subtotalSpan = el.querySelector('.subtotal-item');
+            if (subtotalSpan) {
+                subtotalSpan.textContent = 'Q ' + subtotal.toFixed(2);
+            }
+
+            // Guardar precio en memoria y localStorage
             preciosGuardados[input.dataset.n] = input.value;
-            total += multiplicar ? (precio * cant) : precio;
+            total += subtotal;
         });
         document.getElementById('total-val').textContent = 'Q ' + total.toFixed(2);
+        guardarPreciosEnLocal();
     }
 
     function copiarImagen() {
